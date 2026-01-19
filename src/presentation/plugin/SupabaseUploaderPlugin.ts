@@ -21,10 +21,10 @@ class DeleteConfirmModal extends Modal {
 
   onOpen() {
     const { contentEl } = this;
-    contentEl.createEl('h3', { text: 'Delete Image from Supabase?' });
-    contentEl.createEl('p', { text: `This will permanently delete the image from Supabase Storage.` });
+    contentEl.createEl('h3', { text: 'Delete image from Supabase?' });
+    contentEl.createEl('p', { text: 'This will permanently delete the image from Supabase Storage.' });
     contentEl.createEl('p', { text: this.imagePath, cls: 'delete-confirm-path' });
-    contentEl.createEl('p', { text: '⚠️ This action cannot be undone.', cls: 'delete-confirm-warning' });
+    contentEl.createEl('p', { text: 'This action cannot be undone.', cls: 'delete-confirm-warning' });
 
     const buttonContainer = contentEl.createDiv({ cls: 'delete-confirm-buttons' });
 
@@ -92,15 +92,13 @@ export default class SupabaseUploaderPlugin extends Plugin {
             item
               .setTitle('Delete from Supabase')
               .setIcon('trash-2')
-              .onClick(async () => {
-                await this.handleDeleteImage(editor, imageInfo);
+              .onClick(() => {
+                this.handleDeleteImage(editor, imageInfo);
               });
           });
         }
       })
     );
-
-    console.log('Supabase Image Uploader plugin loaded');
   }
 
   /**
@@ -135,18 +133,18 @@ export default class SupabaseUploaderPlugin extends Plugin {
   /**
    * Handle delete image action
    */
-  private async handleDeleteImage(
+  private handleDeleteImage(
     editor: Editor,
     imageInfo: { url: string; from: number; to: number; line: number }
-  ): Promise<void> {
+  ): void {
     if (!this.storageService) {
-      new Notice('❌ Plugin not configured');
+      new Notice('Plugin not configured.');
       return;
     }
 
     const path = this.storageService.extractPathFromUrl(imageInfo.url);
     if (!path) {
-      new Notice('❌ Could not extract path from URL');
+      new Notice('Could not extract path from URL.');
       return;
     }
 
@@ -160,15 +158,15 @@ export default class SupabaseUploaderPlugin extends Plugin {
         const newLine = line.substring(0, imageInfo.from) + line.substring(imageInfo.to);
         editor.setLine(imageInfo.line, newLine);
 
-        new Notice('✅ Image deleted from Supabase');
+        new Notice('Image deleted from Supabase.');
       } else {
-        new Notice(`❌ ${result.message}`);
+        new Notice(`Delete failed: ${result.message}`);
       }
     }).open();
   }
 
   onunload(): void {
-    console.log('Supabase Image Uploader plugin unloaded');
+    // Plugin cleanup
   }
 
   async loadSettings(): Promise<void> {

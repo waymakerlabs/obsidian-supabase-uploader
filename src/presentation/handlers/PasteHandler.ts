@@ -76,16 +76,16 @@ export class PasteHandler {
       if (result.isSuccess) {
         const markdown = result.toMarkdown();
         editor.setValue(content.replace(placeholder, markdown));
-        new Notice('✅ Image uploaded successfully');
+        new Notice('Image uploaded successfully.');
       } else {
         editor.setValue(content.replace(placeholder, `<!-- Upload failed: ${result.error} -->`));
-        new Notice(`❌ Upload failed: ${result.error}`);
+        new Notice(`Upload failed: ${result.error}`);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const content = editor.getValue();
       editor.setValue(content.replace(placeholder, `<!-- Upload failed: ${errorMessage} -->`));
-      new Notice(`❌ Upload failed: ${errorMessage}`);
+      new Notice(`Upload failed: ${errorMessage}`);
     }
   }
 }

@@ -33,7 +33,7 @@ export class SupabaseStorageService implements IStorageService {
    */
   async upload(file: ImageFile, path: string): Promise<UploadResult> {
     try {
-      const { data, error } = await this.client.storage
+      const { error } = await this.client.storage
         .from(this.bucket)
         .upload(path, file.data, {
           contentType: file.mimeType,
@@ -116,19 +116,19 @@ export class SupabaseStorageService implements IStorageService {
     try {
       // Try to list files in the bucket (limit to 1 for efficiency)
       // This works with anon key if the bucket has proper RLS policies
-      const { data, error } = await this.client.storage
+      const { error } = await this.client.storage
         .from(this.bucket)
         .list('', { limit: 1 });
 
       if (error) {
         // Check for common error types
         if (error.message.includes('not found') || error.message.includes('does not exist')) {
-          return { success: false, message: `Bucket "${this.bucket}" not found` };
+          return { success: false, message: `Bucket "${this.bucket}" not found.` };
         }
         return { success: false, message: `Connection failed: ${error.message}` };
       }
 
-      return { success: true, message: 'Connection successful' };
+      return { success: true, message: 'Connection successful.' };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       return { success: false, message: `Connection failed: ${errorMessage}` };

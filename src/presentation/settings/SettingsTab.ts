@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, Notice, setIcon } from 'obsidian';
+import { App, PluginSettingTab, Setting, Notice, setIcon, ButtonComponent } from 'obsidian';
 import type SupabaseUploaderPlugin from '../plugin/SupabaseUploaderPlugin';
 import { SupabaseStorageService } from '../../infrastructure/storage/SupabaseStorageService';
 
@@ -32,6 +32,7 @@ export class SettingsTab extends PluginSettingTab {
   plugin: SupabaseUploaderPlugin;
   private connectionStatus: ConnectionStatus = 'unknown';
   private statusBadgeEl: HTMLElement | null = null;
+  private apiKeyInput: HTMLInputElement | null = null;
 
   constructor(app: App, plugin: SupabaseUploaderPlugin) {
     super(app, plugin);
@@ -44,20 +45,25 @@ export class SettingsTab extends PluginSettingTab {
     containerEl.addClass('supabase-uploader-settings');
 
     // Header with status badge
-    const headerContainer = containerEl.createDiv({ cls: 'settings-header' });
-    headerContainer.createEl('h2', { text: 'Supabase Image Uploader' });
-    this.statusBadgeEl = headerContainer.createSpan({ cls: 'connection-badge unknown' });
+    new Setting(containerEl)
+      .setName('Supabase Image Uploader')
+      .setHeading();
+
+    const statusContainer = containerEl.createDiv({ cls: 'settings-status-container' });
+    this.statusBadgeEl = statusContainer.createSpan({ cls: 'connection-badge unknown' });
     this.updateStatusBadge();
 
     // ─────────────────────────────────────────────────────────────
-    // Connection Settings Section
+    // Connection settings section
     // ─────────────────────────────────────────────────────────────
-    this.createSectionHeader(containerEl, 'Connection');
+    new Setting(containerEl)
+      .setName('Connection')
+      .setHeading();
 
     // Supabase URL
     new Setting(containerEl)
       .setName('Supabase URL')
-      .setDesc('Your Supabase project URL (e.g., https://xxx.supabase.co)')
+      .setDesc('Your Supabase project URL (e.g., https://xxx.supabase.co).')
       .addText((text) =>
         text
           .setPlaceholder('https://your-project.supabase.co')
@@ -69,11 +75,11 @@ export class SettingsTab extends PluginSettingTab {
           })
       );
 
-    // Supabase Anon Key with show/hide toggle
+    // Supabase anon key with show/hide toggle
     let isKeyVisible = false;
     new Setting(containerEl)
-      .setName('Supabase Anon Key')
-      .setDesc('Your Supabase anonymous (public) key')
+      .setName('Supabase anon key')
+      .setDesc('Your Supabase anonymous (public) key.')
       .addText((text) => {
         text
           .setPlaceholder('eyJhbGciOiJIUzI1NiIs...')
@@ -84,27 +90,26 @@ export class SettingsTab extends PluginSettingTab {
             this.setConnectionStatus('unknown');
           });
         text.inputEl.type = 'password';
-        text.inputEl.addClass('api-key-input');
+        this.apiKeyInput = text.inputEl;
         return text;
       })
       .addExtraButton((button) => {
         button
           .setIcon('eye')
-          .setTooltip('Show/Hide API Key')
+          .setTooltip('Show/hide API key')
           .onClick(() => {
-            const input = containerEl.querySelector('.api-key-input') as HTMLInputElement;
-            if (input) {
+            if (this.apiKeyInput) {
               isKeyVisible = !isKeyVisible;
-              input.type = isKeyVisible ? 'text' : 'password';
+              this.apiKeyInput.type = isKeyVisible ? 'text' : 'password';
               button.setIcon(isKeyVisible ? 'eye-off' : 'eye');
             }
           });
       });
 
-    // Bucket Name
+    // Bucket name
     new Setting(containerEl)
-      .setName('Bucket Name')
-      .setDesc('The Supabase Storage bucket to upload images to')
+      .setName('Bucket name')
+      .setDesc('The Supabase Storage bucket to upload images to.')
       .addText((text) =>
         text
           .setPlaceholder('obsidian-images')
@@ -116,23 +121,25 @@ export class SettingsTab extends PluginSettingTab {
           })
       );
 
-    // Test Connection Button
+    // Test connection button
     new Setting(containerEl)
-      .setName('Test Connection')
-      .setDesc('Verify your Supabase configuration')
+      .setName('Test connection')
+      .setDesc('Verify your Supabase configuration.')
       .addButton((button) =>
         button
-          .setButtonText('Test Connection')
+          .setButtonText('Test connection')
           .setCta()
-          .onClick(async () => {
-            await this.testConnection(button);
+          .onClick(() => {
+            void this.testConnection(button);
           })
       );
 
     // ─────────────────────────────────────────────────────────────
-    // Usage Section
+    // Usage section
     // ─────────────────────────────────────────────────────────────
-    this.createSectionHeader(containerEl, 'Usage');
+    new Setting(containerEl)
+      .setName('Usage')
+      .setHeading();
 
     const usageContainer = containerEl.createDiv({ cls: 'settings-info-box' });
     usageContainer.createEl('p', {
@@ -140,36 +147,31 @@ export class SettingsTab extends PluginSettingTab {
     });
 
     const featureList = usageContainer.createEl('ul', { cls: 'settings-feature-list' });
-    featureList.createEl('li', { text: '📋 Paste from clipboard → Auto upload' });
-    featureList.createEl('li', { text: '🖱️ Drag & drop files → Auto upload' });
-    featureList.createEl('li', { text: '🗑️ Right-click image → Delete from Supabase' });
+    featureList.createEl('li', { text: 'Paste from clipboard - auto upload.' });
+    featureList.createEl('li', { text: 'Drag & drop files - auto upload.' });
+    featureList.createEl('li', { text: 'Right-click image - delete from Supabase.' });
 
     // ─────────────────────────────────────────────────────────────
-    // Setup Guide Section
+    // Setup guide section
     // ─────────────────────────────────────────────────────────────
-    this.createSectionHeader(containerEl, 'Supabase Setup Guide');
+    new Setting(containerEl)
+      .setName('Supabase setup guide')
+      .setHeading();
 
     const guideContainer = containerEl.createDiv({ cls: 'settings-info-box' });
     const instructionsList = guideContainer.createEl('ol', { cls: 'settings-steps' });
-    instructionsList.createEl('li', { text: 'Go to your Supabase Dashboard → Storage' });
-    instructionsList.createEl('li', { text: 'Create a new bucket (e.g., "obsidian-images")' });
-    instructionsList.createEl('li', { text: 'Set the bucket to Public' });
-    instructionsList.createEl('li', { text: 'Add RLS policies for INSERT (and optionally DELETE)' });
+    instructionsList.createEl('li', { text: 'Go to your Supabase Dashboard, then Storage.' });
+    instructionsList.createEl('li', { text: 'Create a new bucket (e.g., "obsidian-images").' });
+    instructionsList.createEl('li', { text: 'Set the bucket to public.' });
+    instructionsList.createEl('li', { text: 'Add RLS policies for INSERT (and optionally DELETE).' });
 
     // Documentation link
     const linkContainer = guideContainer.createDiv({ cls: 'settings-link-container' });
     const docLink = linkContainer.createEl('a', {
-      text: '📖 View full documentation',
+      text: 'View full documentation',
       href: 'https://github.com/waymakerlabs/obsidian-supabase-uploader#readme',
     });
     docLink.setAttr('target', '_blank');
-  }
-
-  /**
-   * Create a section header
-   */
-  private createSectionHeader(container: HTMLElement, title: string): void {
-    container.createEl('div', { cls: 'settings-section-header', text: title });
   }
 
   /**
@@ -205,11 +207,11 @@ export class SettingsTab extends PluginSettingTab {
   /**
    * Test the connection to Supabase
    */
-  private async testConnection(button: any): Promise<void> {
+  private async testConnection(button: ButtonComponent): Promise<void> {
     const { supabaseUrl, supabaseAnonKey, bucketName } = this.plugin.settings;
 
     if (!supabaseUrl || !supabaseAnonKey || !bucketName) {
-      new Notice('Please fill in all Supabase settings first');
+      new Notice('Please fill in all Supabase settings first.');
       return;
     }
 
@@ -227,17 +229,17 @@ export class SettingsTab extends PluginSettingTab {
       const result = await storageService.testConnection();
 
       if (result.success) {
-        new Notice('✅ Connection successful!');
+        new Notice('Connection successful!');
         this.setConnectionStatus('connected');
       } else {
-        new Notice(`❌ ${result.message}`);
+        new Notice(`Connection failed: ${result.message}`);
         this.setConnectionStatus('disconnected');
       }
     } catch (error) {
-      new Notice(`❌ Connection failed: ${error}`);
+      new Notice(`Connection failed: ${error}`);
       this.setConnectionStatus('disconnected');
     } finally {
-      button.setButtonText('Test Connection');
+      button.setButtonText('Test connection');
       button.setDisabled(false);
     }
   }
