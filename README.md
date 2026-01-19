@@ -1,61 +1,101 @@
 # Obsidian Supabase Image Uploader
 
-Obsidian에서 이미지를 붙여넣기/드래그앤드롭하면 Supabase Storage에 자동 업로드하고, 마크다운 링크로 변환하는 플러그인입니다.
+An Obsidian plugin that automatically uploads images to your Supabase Storage when you paste or drag & drop them into your notes.
 
-## ✨ Features
+## Features
 
-- 📋 **붙여넣기 지원**: Ctrl/Cmd+V로 클립보드의 이미지를 바로 업로드
-- 🖱️ **드래그 앤 드롭**: 이미지 파일을 에디터에 드롭하면 자동 업로드
-- 🔗 **마크다운 링크 자동 변환**: 업로드된 이미지는 `![](url)` 형식으로 삽입
-- ⚙️ **간편한 설정**: Supabase URL, API Key, 버킷 이름만 설정하면 OK
-- 📁 **날짜 기반 경로**: `YYYY/MM/DD/uuid.ext` 형식으로 자동 정리
+- **Paste Upload**: Paste images from clipboard (Ctrl/Cmd+V) and they're automatically uploaded
+- **Drag & Drop**: Drag image files into the editor for instant upload
+- **Auto Markdown**: Uploaded images are automatically converted to `![](url)` markdown format
+- **Delete from Context Menu**: Right-click on an image link to delete it from Supabase Storage
+- **Date-based Organization**: Images are stored in `YYYY/MM/DD/uuid.ext` folder structure
+- **Easy Configuration**: Just configure your Supabase URL, API key, and bucket name
 
-## 🚀 Installation
+## Installation
+
+### From Community Plugins (Recommended)
+
+1. Open Obsidian Settings → Community plugins
+2. Disable Restricted mode if prompted
+3. Click "Browse" and search for "Supabase Image Uploader"
+4. Click Install, then Enable
 
 ### Manual Installation
 
-1. 최신 릴리즈에서 `main.js`, `manifest.json` 다운로드
-2. Obsidian vault의 `.obsidian/plugins/supabase-image-uploader/` 폴더 생성
-3. 다운로드한 파일을 해당 폴더에 복사
-4. Obsidian 설정 → Community plugins → Supabase Image Uploader 활성화
+1. Download `main.js` and `manifest.json` from the [latest release](https://github.com/waymakerlabs/obsidian-supabase-uploader/releases)
+2. Create folder: `{your-vault}/.obsidian/plugins/supabase-image-uploader/`
+3. Copy the downloaded files into this folder
+4. Restart Obsidian and enable the plugin in Settings → Community plugins
 
-## ⚙️ Configuration
+## Configuration
 
-### Supabase 설정
+### 1. Supabase Setup
 
-1. [Supabase Dashboard](https://supabase.com/dashboard) 접속
-2. Storage → Create bucket으로 새 버킷 생성 (예: `obsidian-images`)
-3. 버킷 설정에서 **Public** 으로 변경
-4. Policies에서 INSERT 정책 추가:
-   ```sql
-   CREATE POLICY "Allow anonymous uploads"
-   ON storage.objects FOR INSERT
-   TO anon
-   WITH CHECK (bucket_id = 'obsidian-images');
-   ```
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
+2. Create a new project (or use existing one)
+3. Navigate to **Storage** and create a new bucket (e.g., `obsidian-images`)
+4. Set the bucket to **Public**
+5. Add storage policies in **SQL Editor**:
 
-### 플러그인 설정
+```sql
+-- Allow anonymous uploads
+CREATE POLICY "Allow anonymous uploads"
+ON storage.objects FOR INSERT
+TO anon
+WITH CHECK (bucket_id = 'obsidian-images');
 
-1. Obsidian 설정 → Community plugins → Supabase Image Uploader → ⚙️
-2. 다음 항목 입력:
-   - **Supabase URL**: `https://your-project.supabase.co`
-   - **Supabase Anon Key**: 프로젝트의 anon/public key
-   - **Bucket Name**: 생성한 버킷 이름 (기본값: `obsidian-images`)
-3. **Test** 버튼으로 연결 확인
+-- Allow public read access
+CREATE POLICY "Allow public read"
+ON storage.objects FOR SELECT
+TO anon
+USING (bucket_id = 'obsidian-images');
 
-## 📖 Usage
+-- (Optional) Allow anonymous delete
+CREATE POLICY "Allow anonymous delete"
+ON storage.objects FOR DELETE
+TO anon
+USING (bucket_id = 'obsidian-images');
+```
 
-설정 완료 후:
+### 2. Plugin Settings
 
-1. **붙여넣기**: 이미지를 클립보드에 복사한 후 노트에서 Ctrl/Cmd+V
-2. **드래그 앤 드롭**: 이미지 파일을 노트 에디터에 드래그
+1. Go to Obsidian Settings → Community plugins → Supabase Image Uploader → ⚙️
+2. Enter your settings:
+   - **Supabase URL**: Your project URL (e.g., `https://xxxxx.supabase.co`)
+   - **Supabase Anon Key**: Your project's anon/public key
+   - **Bucket Name**: The bucket you created (default: `obsidian-images`)
+3. Click **Test** to verify the connection
 
-업로드 중에는 `![Uploading image.png...]()` 플레이스홀더가 표시되고,
-완료 후 `![](https://...)`로 자동 변환됩니다.
+## Usage
 
-## 🏗️ Architecture
+Once configured:
 
-이 플러그인은 Clean Architecture 원칙을 따릅니다:
+1. **Paste**: Copy an image to clipboard and press Ctrl/Cmd+V in your note
+2. **Drag & Drop**: Drag an image file from your file explorer into the editor
+
+During upload, you'll see a placeholder: `![Uploading image.png...]()`
+
+After upload completes, it will be replaced with: `![](https://your-project.supabase.co/storage/v1/object/public/...)`
+
+### Deleting Images
+
+1. Place your cursor on an image markdown link
+2. Right-click to open the context menu
+3. Select "Delete from Supabase"
+4. Confirm deletion in the dialog
+
+## Supported Image Types
+
+| Format | MIME Type | Max Size |
+|--------|-----------|----------|
+| PNG | image/png | 10MB |
+| JPEG | image/jpeg | 10MB |
+| GIF | image/gif | 10MB |
+| WebP | image/webp | 10MB |
+
+## Architecture
+
+This plugin follows Clean Architecture principles:
 
 ```
 ┌─────────────────────────────────────────┐
@@ -73,35 +113,45 @@ Obsidian에서 이미지를 붙여넣기/드래그앤드롭하면 Supabase Stora
 └─────────────────────────────────────────┘
 ```
 
-## 🧪 Development
+## Development
 
 ```bash
 # Install dependencies
 npm install
 
-# Run tests
+# Run tests (30 tests, 97% coverage)
 npm test
 
-# Build for development (watch mode)
+# Development build with watch mode
 npm run dev
 
-# Build for production
+# Production build
 npm run build
 ```
 
-## 📝 Supported Image Types
+## Troubleshooting
 
-- PNG (`image/png`)
-- JPEG (`image/jpeg`)
-- GIF (`image/gif`)
-- WebP (`image/webp`)
+### "Bucket not found" error
+- Verify the bucket exists in Supabase Dashboard → Storage
+- Check that the bucket name in settings matches exactly
 
-최대 파일 크기: **10MB**
+### "Connection failed" error
+- Verify your Supabase URL (no trailing slash)
+- Ensure you're using the **anon** key, not the service_role key
+- Check that your Supabase project is active
 
-## 📄 License
+### Upload fails
+- Check file size (max 10MB)
+- Verify the image format is supported (PNG, JPEG, GIF, WebP)
+- Ensure INSERT policy is configured for the bucket
 
-MIT License
+### Delete fails
+- Ensure DELETE policy is configured in Supabase
 
-## 🙏 Contributing
+## Contributing
 
-Issues와 Pull Requests를 환영합니다!
+Issues and Pull Requests are welcome!
+
+## License
+
+[MIT](LICENSE)
