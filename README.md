@@ -10,6 +10,7 @@ An Obsidian plugin that automatically uploads images to your Supabase Storage wh
 - **Delete from Context Menu**: Right-click on an image link to delete it from Supabase Storage
 - **Date-based Organization**: Images are stored in `YYYY/MM/DD/uuid.ext` folder structure
 - **Easy Configuration**: Just configure your Supabase URL, API key, and bucket name
+- **Flexible Backend**: Works with both Supabase Cloud and self-hosted Supabase instances
 
 ## Installation
 
