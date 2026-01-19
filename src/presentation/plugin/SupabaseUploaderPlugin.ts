@@ -22,7 +22,7 @@ class DeleteConfirmModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.createEl('h3', { text: 'Delete image from Supabase?' });
-    contentEl.createEl('p', { text: 'This will permanently delete the image from Supabase Storage.' });
+    contentEl.createEl('p', { text: 'This will permanently delete the image from Supabase storage.' });
     contentEl.createEl('p', { text: this.imagePath, cls: 'delete-confirm-path' });
     contentEl.createEl('p', { text: 'This action cannot be undone.', cls: 'delete-confirm-warning' });
 
@@ -142,26 +142,29 @@ export default class SupabaseUploaderPlugin extends Plugin {
       return;
     }
 
-    const path = this.storageService.extractPathFromUrl(imageInfo.url);
+    const storageService = this.storageService;
+    const path = storageService.extractPathFromUrl(imageInfo.url);
     if (!path) {
       new Notice('Could not extract path from URL.');
       return;
     }
 
     // Show confirmation modal
-    new DeleteConfirmModal(this.app, path, async () => {
-      const result = await this.storageService!.delete(path);
+    new DeleteConfirmModal(this.app, path, () => {
+      void (async () => {
+        const result = await storageService.delete(path);
 
-      if (result.success) {
-        // Remove the image link from the editor
-        const line = editor.getLine(imageInfo.line);
-        const newLine = line.substring(0, imageInfo.from) + line.substring(imageInfo.to);
-        editor.setLine(imageInfo.line, newLine);
+        if (result.success) {
+          // Remove the image link from the editor
+          const line = editor.getLine(imageInfo.line);
+          const newLine = line.substring(0, imageInfo.from) + line.substring(imageInfo.to);
+          editor.setLine(imageInfo.line, newLine);
 
-        new Notice('Image deleted from Supabase.');
-      } else {
-        new Notice(`Delete failed: ${result.message}`);
-      }
+          new Notice('Image deleted from Supabase.');
+        } else {
+          new Notice(`Delete failed: ${result.message}`);
+        }
+      })();
     }).open();
   }
 

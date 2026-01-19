@@ -44,11 +44,7 @@ export class SettingsTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.addClass('supabase-uploader-settings');
 
-    // Header with status badge
-    new Setting(containerEl)
-      .setName('Supabase Image Uploader')
-      .setHeading();
-
+    // Status badge container
     const statusContainer = containerEl.createDiv({ cls: 'settings-status-container' });
     this.statusBadgeEl = statusContainer.createSpan({ cls: 'connection-badge unknown' });
     this.updateStatusBadge();
@@ -109,7 +105,7 @@ export class SettingsTab extends PluginSettingTab {
     // Bucket name
     new Setting(containerEl)
       .setName('Bucket name')
-      .setDesc('The Supabase Storage bucket to upload images to.')
+      .setDesc('The Supabase storage bucket to upload images to.')
       .addText((text) =>
         text
           .setPlaceholder('obsidian-images')
@@ -160,10 +156,10 @@ export class SettingsTab extends PluginSettingTab {
 
     const guideContainer = containerEl.createDiv({ cls: 'settings-info-box' });
     const instructionsList = guideContainer.createEl('ol', { cls: 'settings-steps' });
-    instructionsList.createEl('li', { text: 'Go to your Supabase Dashboard, then Storage.' });
+    instructionsList.createEl('li', { text: 'Go to your Supabase dashboard, then storage.' });
     instructionsList.createEl('li', { text: 'Create a new bucket (e.g., "obsidian-images").' });
     instructionsList.createEl('li', { text: 'Set the bucket to public.' });
-    instructionsList.createEl('li', { text: 'Add RLS policies for INSERT (and optionally DELETE).' });
+    instructionsList.createEl('li', { text: 'Add RLS policies for insert (and optionally delete).' });
 
     // Documentation link
     const linkContainer = guideContainer.createDiv({ cls: 'settings-link-container' });

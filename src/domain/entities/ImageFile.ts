@@ -77,10 +77,11 @@ export class ImageFile {
    * Factory method to create an ImageFile with validation
    */
   static create(params: ImageFileParams): ImageFile {
-    // Validate MIME type
-    if (!this.isSupportedMimeType(params.mimeType)) {
+    // Validate MIME type (type guard narrows mimeType to SupportedMimeType)
+    const { mimeType } = params;
+    if (!this.isSupportedMimeType(mimeType)) {
       throw new ImageValidationError(
-        `Unsupported MIME type: ${params.mimeType}. Supported types: ${SUPPORTED_MIME_TYPES.join(', ')}`
+        `Unsupported MIME type: ${mimeType}. Supported types: ${SUPPORTED_MIME_TYPES.join(', ')}`
       );
     }
 
@@ -93,7 +94,7 @@ export class ImageFile {
 
     return new ImageFile({
       name: params.name,
-      mimeType: params.mimeType as SupportedMimeType,
+      mimeType,
       data: params.data,
       size: params.size,
     });
