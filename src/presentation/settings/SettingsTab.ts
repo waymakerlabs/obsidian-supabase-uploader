@@ -59,7 +59,7 @@ export class SettingsTab extends PluginSettingTab {
     // Supabase URL
     new Setting(containerEl)
       .setName('Supabase URL')
-      .setDesc('Your Supabase project URL (e.g., https://xxx.supabase.co).')
+      .setDesc('Your Supabase project URL (e.g., https://xxx.supabase.co)')
       .addText((text) =>
         text
           .setPlaceholder('https://your-project.supabase.co')
@@ -75,7 +75,7 @@ export class SettingsTab extends PluginSettingTab {
     let isKeyVisible = false;
     new Setting(containerEl)
       .setName('Supabase anon key')
-      .setDesc('Your Supabase anonymous (public) key.')
+      .setDesc('Your Supabase anonymous (public) key')
       .addText((text) => {
         text
           .setPlaceholder('eyJhbGciOiJIUzI1NiIs...')
@@ -105,7 +105,7 @@ export class SettingsTab extends PluginSettingTab {
     // Bucket name
     new Setting(containerEl)
       .setName('Bucket name')
-      .setDesc('The Supabase storage bucket to upload images to.')
+      .setDesc('The Supabase storage bucket to upload images to')
       .addText((text) =>
         text
           .setPlaceholder('obsidian-images')
@@ -120,7 +120,7 @@ export class SettingsTab extends PluginSettingTab {
     // Test connection button
     new Setting(containerEl)
       .setName('Test connection')
-      .setDesc('Verify your Supabase configuration.')
+      .setDesc('Verify your Supabase configuration')
       .addButton((button) =>
         button
           .setButtonText('Test connection')
@@ -143,9 +143,9 @@ export class SettingsTab extends PluginSettingTab {
     });
 
     const featureList = usageContainer.createEl('ul', { cls: 'settings-feature-list' });
-    featureList.createEl('li', { text: 'Paste from clipboard - auto upload.' });
-    featureList.createEl('li', { text: 'Drag & drop files - auto upload.' });
-    featureList.createEl('li', { text: 'Right-click image - delete from Supabase.' });
+    featureList.createEl('li', { text: 'Paste from clipboard - auto upload' });
+    featureList.createEl('li', { text: 'Drag & drop files - auto upload' });
+    featureList.createEl('li', { text: 'Right-click image - delete from Supabase' });
 
     // ─────────────────────────────────────────────────────────────
     // Setup guide section
@@ -156,10 +156,10 @@ export class SettingsTab extends PluginSettingTab {
 
     const guideContainer = containerEl.createDiv({ cls: 'settings-info-box' });
     const instructionsList = guideContainer.createEl('ol', { cls: 'settings-steps' });
-    instructionsList.createEl('li', { text: 'Go to your Supabase dashboard, then storage.' });
-    instructionsList.createEl('li', { text: 'Create a new bucket (e.g., "obsidian-images").' });
-    instructionsList.createEl('li', { text: 'Set the bucket to public.' });
-    instructionsList.createEl('li', { text: 'Add RLS policies for insert (and optionally delete).' });
+    instructionsList.createEl('li', { text: 'Go to your Supabase dashboard, then storage' });
+    instructionsList.createEl('li', { text: 'Create a new bucket (e.g., "obsidian-images")' });
+    instructionsList.createEl('li', { text: 'Set the bucket to public' });
+    instructionsList.createEl('li', { text: 'Add RLS policies for insert (and optionally delete)' });
 
     // Documentation link
     const linkContainer = guideContainer.createDiv({ cls: 'settings-link-container' });
@@ -207,7 +207,7 @@ export class SettingsTab extends PluginSettingTab {
     const { supabaseUrl, supabaseAnonKey, bucketName } = this.plugin.settings;
 
     if (!supabaseUrl || !supabaseAnonKey || !bucketName) {
-      new Notice('Please fill in all Supabase settings first.');
+      new Notice('Please fill in all Supabase settings first');
       return;
     }
 

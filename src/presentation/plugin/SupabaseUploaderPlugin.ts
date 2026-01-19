@@ -22,7 +22,7 @@ class DeleteConfirmModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.createEl('h3', { text: 'Delete image from Supabase?' });
-    contentEl.createEl('p', { text: 'This will permanently delete the image from Supabase storage.' });
+    contentEl.createEl('p', { text: 'This will permanently delete the image from Supabase storage' });
     contentEl.createEl('p', { text: this.imagePath, cls: 'delete-confirm-path' });
     contentEl.createEl('p', { text: 'This action cannot be undone.', cls: 'delete-confirm-warning' });
 
@@ -138,14 +138,14 @@ export default class SupabaseUploaderPlugin extends Plugin {
     imageInfo: { url: string; from: number; to: number; line: number }
   ): void {
     if (!this.storageService) {
-      new Notice('Plugin not configured.');
+      new Notice('Plugin not configured');
       return;
     }
 
     const storageService = this.storageService;
     const path = storageService.extractPathFromUrl(imageInfo.url);
     if (!path) {
-      new Notice('Could not extract path from URL.');
+      new Notice('Could not extract path from URL');
       return;
     }
 
@@ -160,7 +160,7 @@ export default class SupabaseUploaderPlugin extends Plugin {
           const newLine = line.substring(0, imageInfo.from) + line.substring(imageInfo.to);
           editor.setLine(imageInfo.line, newLine);
 
-          new Notice('Image deleted from Supabase.');
+          new Notice('Image deleted from Supabase');
         } else {
           new Notice(`Delete failed: ${result.message}`);
         }

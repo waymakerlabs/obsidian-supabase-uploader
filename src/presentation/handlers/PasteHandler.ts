@@ -76,7 +76,7 @@ export class PasteHandler {
       if (result.isSuccess) {
         const markdown = result.toMarkdown();
         editor.setValue(content.replace(placeholder, markdown));
-        new Notice('Image uploaded successfully.');
+        new Notice('Image uploaded successfully');
       } else {
         editor.setValue(content.replace(placeholder, `<!-- Upload failed: ${result.error} -->`));
         new Notice(`Upload failed: ${result.error}`);
