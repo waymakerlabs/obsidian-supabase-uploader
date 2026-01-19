@@ -3,7 +3,7 @@
   "name": "Supabase Image Uploader",
   "version": "1.0.1",
   "minAppVersion": "1.0.0",
-  "description": "Automatically upload images to Supabase Storage when pasting or dropping",
+  "description": "Automatically upload images to Supabase Storage when pasting or dropping.",
   "author": "waymakerlabs",
   "authorUrl": "https://github.com/waymakerlabs",
   "isDesktopOnly": false
