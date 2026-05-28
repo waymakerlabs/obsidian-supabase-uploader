@@ -1,11 +1,12 @@
 {
   "name": "obsidian-supabase-uploader",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Obsidian plugin to upload images to Supabase Storage",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "lint": "eslint src main.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
@@ -20,16 +21,20 @@
   "author": "waymakerlabs",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@eslint/json": "^0.14.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.0",
-    "builtin-modules": "^3.3.0",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.28.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-obsidianmd": "^0.3.0",
     "jest": "^29.7.0",
     "obsidian": "latest",
     "ts-jest": "^29.1.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.60.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.3"
+    "@supabase/storage-js": "^2.106.2"
   }
 }

@@ -67,6 +67,10 @@ USING (bucket_id = 'obsidian-images');
    - **Bucket Name**: The bucket you created (default: `obsidian-images`)
 3. Click **Test** to verify the connection
 
+## Network and Data Disclosure
+
+This plugin sends image files to the Supabase project that you configure. Network requests happen when you paste or drag and drop an image, delete an uploaded image from the context menu, or click **Test** in settings. The plugin does not include telemetry, ads, analytics, or background reporting to the plugin author.
+
 ## Usage
 
 Once configured:

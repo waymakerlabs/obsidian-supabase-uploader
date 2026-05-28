@@ -15,19 +15,26 @@ export class PasteHandler {
     this.isConfigured = isConfigured;
   }
 
+  canHandle(evt: ClipboardEvent): boolean {
+    if (!this.isConfigured()) {
+      return false;
+    }
+
+    const files = evt.clipboardData?.files;
+    if (!files || files.length === 0) {
+      return false;
+    }
+
+    return Array.from(files).some((file) => file.type.startsWith('image/'));
+  }
+
   /**
    * Handle the paste event
    * @param evt The clipboard event
    * @param editor The Obsidian editor instance
-   * @param view The markdown view
    * @returns true if the event was handled, false otherwise
    */
-  async handle(evt: ClipboardEvent, editor: Editor, view: MarkdownView): Promise<boolean> {
-    // Check if plugin is configured
-    if (!this.isConfigured()) {
-      return false; // Let Obsidian handle the paste
-    }
-
+  async handle(evt: ClipboardEvent, editor: Editor, _view: MarkdownView): Promise<boolean> {
     const files = evt.clipboardData?.files;
     if (!files || files.length === 0) {
       return false; // No files in clipboard, let Obsidian handle it
@@ -38,9 +45,6 @@ export class PasteHandler {
     if (imageFiles.length === 0) {
       return false; // No images, let Obsidian handle it
     }
-
-    // Prevent default paste behavior
-    evt.preventDefault();
 
     // Process each image
     for (const file of imageFiles) {

@@ -15,19 +15,26 @@ export class DropHandler {
     this.isConfigured = isConfigured;
   }
 
+  canHandle(evt: DragEvent): boolean {
+    if (!this.isConfigured()) {
+      return false;
+    }
+
+    const files = evt.dataTransfer?.files;
+    if (!files || files.length === 0) {
+      return false;
+    }
+
+    return Array.from(files).some((file) => file.type.startsWith('image/'));
+  }
+
   /**
    * Handle the drop event
    * @param evt The drag event
    * @param editor The Obsidian editor instance
-   * @param view The markdown view
    * @returns true if the event was handled, false otherwise
    */
   async handle(evt: DragEvent, editor: Editor, view: MarkdownView): Promise<boolean> {
-    // Check if plugin is configured
-    if (!this.isConfigured()) {
-      return false; // Let Obsidian handle the drop
-    }
-
     const files = evt.dataTransfer?.files;
     if (!files || files.length === 0) {
       return false; // No files dropped
@@ -38,9 +45,6 @@ export class DropHandler {
     if (imageFiles.length === 0) {
       return false; // No images, let Obsidian handle it
     }
-
-    // Prevent default drop behavior
-    evt.preventDefault();
 
     // Get drop position
     const dropPosition = this.getDropPosition(evt, editor, view);
@@ -57,9 +61,9 @@ export class DropHandler {
    * Get the editor position from the drop event
    */
   private getDropPosition(
-    evt: DragEvent,
+    _evt: DragEvent,
     editor: Editor,
-    view: MarkdownView
+    _view: MarkdownView
   ): { line: number; ch: number } {
     // Try to get position from drop coordinates
     // Fallback to current cursor position

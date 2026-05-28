@@ -59,6 +59,7 @@ export class SettingsTab extends PluginSettingTab {
     // Supabase URL
     new Setting(containerEl)
       .setName('Supabase URL')
+      // eslint-disable-next-line obsidianmd/ui/sentence-case
       .setDesc('Your Supabase project URL (e.g., https://xxx.supabase.co)')
       .addText((text) =>
         text
@@ -92,7 +93,6 @@ export class SettingsTab extends PluginSettingTab {
       .addExtraButton((button) => {
         button
           .setIcon('eye')
-          .setTooltip('Show/hide API key')
           .onClick(() => {
             if (this.apiKeyInput) {
               isKeyVisible = !isKeyVisible;
@@ -100,6 +100,7 @@ export class SettingsTab extends PluginSettingTab {
               button.setIcon(isKeyVisible ? 'eye-off' : 'eye');
             }
           });
+        button.extraSettingsEl.setAttr('aria-label', 'Show or hide API key');
       });
 
     // Bucket name
@@ -108,6 +109,7 @@ export class SettingsTab extends PluginSettingTab {
       .setDesc('The Supabase storage bucket to upload images to')
       .addText((text) =>
         text
+          // eslint-disable-next-line obsidianmd/ui/sentence-case
           .setPlaceholder('obsidian-images')
           .setValue(this.plugin.settings.bucketName)
           .onChange(async (value) => {
@@ -212,7 +214,7 @@ export class SettingsTab extends PluginSettingTab {
     }
 
     button.setButtonText('Testing...');
-    button.setDisabled(true);
+    button.buttonEl.disabled = true;
     this.setConnectionStatus('testing');
 
     try {
@@ -236,7 +238,7 @@ export class SettingsTab extends PluginSettingTab {
       this.setConnectionStatus('disconnected');
     } finally {
       button.setButtonText('Test connection');
-      button.setDisabled(false);
+      button.buttonEl.disabled = false;
     }
   }
 }

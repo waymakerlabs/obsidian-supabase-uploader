@@ -1,4 +1,4 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { StorageClient } from '@supabase/storage-js';
 import { IStorageService } from '../../domain/interfaces/IStorageService';
 import { ImageFile } from '../../domain/entities/ImageFile';
 import { UploadResult } from '../../domain/entities/UploadResult';
@@ -18,12 +18,15 @@ export interface SupabaseConfig {
  * Implementation of IStorageService that uploads files to Supabase Storage.
  */
 export class SupabaseStorageService implements IStorageService {
-  private client: SupabaseClient;
+  private client: StorageClient;
   private bucket: string;
   private baseUrl: string;
 
   constructor(config: SupabaseConfig) {
-    this.client = createClient(config.url, config.anonKey);
+    this.client = new StorageClient(`${config.url}/storage/v1`, {
+      apikey: config.anonKey,
+      Authorization: `Bearer ${config.anonKey}`,
+    });
     this.bucket = config.bucket;
     this.baseUrl = config.url;
   }
@@ -33,7 +36,7 @@ export class SupabaseStorageService implements IStorageService {
    */
   async upload(file: ImageFile, path: string): Promise<UploadResult> {
     try {
-      const { error } = await this.client.storage
+      const { error } = await this.client
         .from(this.bucket)
         .upload(path, file.data, {
           contentType: file.mimeType,
@@ -45,7 +48,7 @@ export class SupabaseStorageService implements IStorageService {
       }
 
       // Generate public URL
-      const { data: publicUrlData } = this.client.storage
+      const { data: publicUrlData } = this.client
         .from(this.bucket)
         .getPublicUrl(path);
 
@@ -63,7 +66,7 @@ export class SupabaseStorageService implements IStorageService {
    */
   async delete(path: string): Promise<{ success: boolean; message: string }> {
     try {
-      const { error } = await this.client.storage
+      const { error } = await this.client
         .from(this.bucket)
         .remove([path]);
 
@@ -116,7 +119,7 @@ export class SupabaseStorageService implements IStorageService {
     try {
       // Try to list files in the bucket (limit to 1 for efficiency)
       // This works with anon key if the bucket has proper RLS policies
-      const { error } = await this.client.storage
+      const { error } = await this.client
         .from(this.bucket)
         .list('', { limit: 1 });
 

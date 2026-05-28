@@ -67,25 +67,35 @@ export default class SupabaseUploaderPlugin extends Plugin {
 
     // Register paste event handler
     this.registerEvent(
-      this.app.workspace.on('editor-paste', async (evt: ClipboardEvent, editor: Editor, view: MarkdownView) => {
-        if (this.pasteHandler) {
-          await this.pasteHandler.handle(evt, editor, view);
+      this.app.workspace.on('editor-paste', (evt: ClipboardEvent, editor: Editor, view: MarkdownView) => {
+        if (evt.defaultPrevented) {
+          return;
+        }
+
+        if (this.pasteHandler?.canHandle(evt)) {
+          evt.preventDefault();
+          void this.pasteHandler.handle(evt, editor, view);
         }
       })
     );
 
     // Register drop event handler
     this.registerEvent(
-      this.app.workspace.on('editor-drop', async (evt: DragEvent, editor: Editor, view: MarkdownView) => {
-        if (this.dropHandler) {
-          await this.dropHandler.handle(evt, editor, view);
+      this.app.workspace.on('editor-drop', (evt: DragEvent, editor: Editor, view: MarkdownView) => {
+        if (evt.defaultPrevented) {
+          return;
+        }
+
+        if (this.dropHandler?.canHandle(evt)) {
+          evt.preventDefault();
+          void this.dropHandler.handle(evt, editor, view);
         }
       })
     );
 
     // Register editor context menu (right-click menu)
     this.registerEvent(
-      this.app.workspace.on('editor-menu', (menu: Menu, editor: Editor, view: MarkdownView) => {
+      this.app.workspace.on('editor-menu', (menu: Menu, editor: Editor, _view: MarkdownView) => {
         const imageInfo = this.getImageLinkAtCursor(editor);
         if (imageInfo && this.storageService?.isSupabaseUrl(imageInfo.url)) {
           menu.addItem((item) => {
@@ -151,21 +161,27 @@ export default class SupabaseUploaderPlugin extends Plugin {
 
     // Show confirmation modal
     new DeleteConfirmModal(this.app, path, () => {
-      void (async () => {
-        const result = await storageService.delete(path);
-
-        if (result.success) {
-          // Remove the image link from the editor
-          const line = editor.getLine(imageInfo.line);
-          const newLine = line.substring(0, imageInfo.from) + line.substring(imageInfo.to);
-          editor.setLine(imageInfo.line, newLine);
-
-          new Notice('Image deleted from Supabase');
-        } else {
-          new Notice(`Delete failed: ${result.message}`);
-        }
-      })();
+      void this.deleteImage(editor, imageInfo, storageService, path);
     }).open();
+  }
+
+  private async deleteImage(
+    editor: Editor,
+    imageInfo: { url: string; from: number; to: number; line: number },
+    storageService: SupabaseStorageService,
+    path: string
+  ): Promise<void> {
+    const result = await storageService.delete(path);
+
+    if (result.success) {
+      const line = editor.getLine(imageInfo.line);
+      const newLine = line.substring(0, imageInfo.from) + line.substring(imageInfo.to);
+      editor.setLine(imageInfo.line, newLine);
+
+      new Notice('Image deleted from Supabase');
+    } else {
+      new Notice(`Delete failed: ${result.message}`);
+    }
   }
 
   onunload(): void {
@@ -173,7 +189,8 @@ export default class SupabaseUploaderPlugin extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    const loadedSettings = (await this.loadData()) as Partial<PluginSettings> | null;
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedSettings);
   }
 
   async saveSettings(): Promise<void> {

@@ -41,7 +41,7 @@ export class ImageValidationError extends Error {
 export interface ImageFileParams {
   name: string;
   mimeType: string;
-  data: ArrayBuffer | Buffer;
+  data: ArrayBuffer | Uint8Array;
   size: number;
 }
 
@@ -54,7 +54,7 @@ export interface ImageFileParams {
 export class ImageFile {
   readonly name: string;
   readonly mimeType: SupportedMimeType;
-  readonly data: ArrayBuffer | Buffer;
+  readonly data: ArrayBuffer | Uint8Array;
   readonly size: number;
   readonly extension: string;
   readonly normalizedName: string;
@@ -62,7 +62,7 @@ export class ImageFile {
   private constructor(params: {
     name: string;
     mimeType: SupportedMimeType;
-    data: ArrayBuffer | Buffer;
+    data: ArrayBuffer | Uint8Array;
     size: number;
   }) {
     this.name = params.name;
@@ -104,7 +104,7 @@ export class ImageFile {
    * Check if the MIME type is supported
    */
   private static isSupportedMimeType(mimeType: string): mimeType is SupportedMimeType {
-    return SUPPORTED_MIME_TYPES.includes(mimeType as SupportedMimeType);
+    return (SUPPORTED_MIME_TYPES as readonly string[]).includes(mimeType);
   }
 
   /**
